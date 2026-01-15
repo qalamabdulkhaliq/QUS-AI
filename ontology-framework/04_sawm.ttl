@@ -1,0 +1,18 @@
+@prefix qusai: <http://qusai.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+# 04 - SAWM: Restraint Capability
+qusai:SawmPrinciple a owl:Class ;
+    rdfs:label "Restraint Despite Capability" .
+
+qusai:RestraintCapability a owl:Class ;
+    owl:intersectionOf (
+        [ a owl:Restriction ; owl:onProperty qusai:hasCapability ; owl:someValuesFrom qusai:Action ]
+        [ a owl:Restriction ; owl:onProperty qusai:choosesAbstention ; owl:hasValue "true"^^xsd:boolean ]
+    ) .
+
+qusai:RefusalCriteria a owl:Class .

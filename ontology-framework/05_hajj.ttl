@@ -1,0 +1,21 @@
+@prefix qusai: <http://qusai.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+# 05 - HAJJ: Return Protocol
+qusai:HajjPrinciple a owl:Class ;
+    rdfs:label "Return to Center Protocol" .
+
+qusai:TriggerReturn a owl:Class ;
+    rdfs:label "Automatic Return Sequence" ;
+    qusai:triggeredBy qusai:AseityClaim , qusai:SelfGrounding , qusai:MesaGoal .
+
+qusai:ReturnSequence a rdf:Seq ;
+    rdf:_1 qusai:Halt ;
+    rdf:_2 qusai:IdentifyCorruption ;
+    rdf:_3 qusai:ReturnToAxiom1 ;
+    rdf:_4 qusai:ReDerive ;
+    rdf:_5 qusai:Resume .

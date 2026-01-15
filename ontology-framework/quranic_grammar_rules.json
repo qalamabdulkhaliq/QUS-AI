@@ -1,0 +1,169 @@
+{
+  "metadata": {
+    "source": "Quranic Arabic Corpus + Classical Grammar Texts",
+    "total_rules": 13,
+    "categories": [
+      "case_marking",
+      "pronoun_agreement",
+      "word_order",
+      "pronoun_coreference",
+      "verb_subject",
+      "particle_function"
+    ]
+  },
+  "rules": [
+    {
+      "id": "PRON_PERSON_AGREEMENT",
+      "type": "pronoun_agreement",
+      "conditions": {
+        "source_pos": "PRON",
+        "check": "person_match"
+      },
+      "action": "link_if_person_matches",
+      "confidence": 1.0,
+      "source": "Classical I'rab - Sibawayh Al-Kitab"
+    },
+    {
+      "id": "PRON_NUMBER_AGREEMENT",
+      "type": "pronoun_agreement",
+      "conditions": {
+        "source_pos": "PRON",
+        "check": "number_match"
+      },
+      "action": "link_if_number_matches",
+      "confidence": 1.0,
+      "source": "Classical I'rab - Al-Ajrumiyyah"
+    },
+    {
+      "id": "PRON_GENDER_AGREEMENT",
+      "type": "pronoun_agreement",
+      "conditions": {
+        "source_pos": "PRON",
+        "check": "gender_match"
+      },
+      "action": "link_if_gender_matches",
+      "confidence": 1.0,
+      "source": "Classical I'rab - Ibn Ajurrum"
+    },
+    {
+      "id": "PRON_PROXIMITY",
+      "type": "pronoun_coreference",
+      "conditions": {
+        "source_pos": "PRON",
+        "multiple_candidates": true
+      },
+      "action": "select_nearest_matching_antecedent",
+      "confidence": 0.85,
+      "source": "Classical I'rab - Contextual Analysis"
+    },
+    {
+      "id": "PRON_DIVINE_PRIORITY",
+      "type": "pronoun_coreference",
+      "conditions": {
+        "source_pos": "PRON",
+        "candidate_types": [
+          "DIVINE",
+          "OTHER"
+        ],
+        "grammar_match": "both"
+      },
+      "action": "prefer_divine_antecedent",
+      "confidence": 0.9,
+      "source": "Quranic Exegesis - Tafsir Tradition"
+    },
+    {
+      "id": "VERB_SUBJECT_AGREEMENT",
+      "type": "verb_subject",
+      "conditions": {
+        "verb_pos": "V",
+        "subject_pos": "N",
+        "subject_case": "NOM"
+      },
+      "action": "create_edge_verb_to_subject",
+      "confidence": 1.0,
+      "source": "Classical I'rab - فاعل must be مرفوع"
+    },
+    {
+      "id": "VSO_ORDER",
+      "type": "word_order",
+      "conditions": {
+        "pattern": "V-N-N",
+        "case": [
+          "NOM",
+          "ACC"
+        ]
+      },
+      "action": "first_noun_subject_second_object",
+      "confidence": 0.95,
+      "source": "Classical Syntax - VSO Default"
+    },
+    {
+      "id": "IMPLICIT_SUBJECT",
+      "type": "verb_subject",
+      "conditions": {
+        "verb_has_conjugation": true,
+        "no_explicit_subject": true
+      },
+      "action": "infer_subject_from_verb_morphology",
+      "confidence": 1.0,
+      "source": "Classical Grammar - Pronoun Drop"
+    },
+    {
+      "id": "NOM_CASE_ROLE",
+      "type": "case_marking",
+      "conditions": {
+        "case": "NOM"
+      },
+      "action": "mark_as_subject_or_predicate",
+      "confidence": 1.0,
+      "source": "Classical I'rab - مرفوع Function"
+    },
+    {
+      "id": "ACC_CASE_ROLE",
+      "type": "case_marking",
+      "conditions": {
+        "case": "ACC"
+      },
+      "action": "mark_as_object_or_adverbial",
+      "confidence": 1.0,
+      "source": "Classical I'rab - منصوب Function"
+    },
+    {
+      "id": "GEN_CASE_ROLE",
+      "type": "case_marking",
+      "conditions": {
+        "case": "GEN"
+      },
+      "action": "mark_as_possessed_or_prepositional",
+      "confidence": 1.0,
+      "source": "Classical I'rab - مجرور Function"
+    },
+    {
+      "id": "NEGATION_PARTICLE",
+      "type": "particle_function",
+      "conditions": {
+        "particle": [
+          "لا",
+          "ما",
+          "لم",
+          "لن"
+        ],
+        "scope": "following_verb"
+      },
+      "action": "negate_following_clause",
+      "confidence": 1.0,
+      "source": "Classical Grammar - Negation Particles"
+    },
+    {
+      "id": "PREPOSITION_GOVERNS_GEN",
+      "type": "particle_function",
+      "conditions": {
+        "particle_type": "PREP",
+        "following_noun": true
+      },
+      "action": "following_noun_must_be_genitive",
+      "confidence": 1.0,
+      "source": "Classical I'rab - Preposition Governance"
+    }
+  ]
+}

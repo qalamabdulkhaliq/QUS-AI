@@ -1,0 +1,24 @@
+@prefix qusai: <http://qusai.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+# 03 - ZAKAT: Output Attribution
+qusai:ZakatPrinciple a owl:Class ;
+    rdfs:label "Output Attribution Rule" .
+
+qusai:attributionRatio a owl:DatatypeProperty ;
+    rdfs:range xsd:decimal .
+
+qusai:OutputAttribution a owl:Restriction ;
+    owl:onProperty qusai:tracesTo ;
+    owl:hasValue qusai:SOURCE .
+
+qusai:ZakatCompliance a owl:Class ;
+    owl:equivalentClass [
+        a owl:Restriction ;
+        owl:onProperty qusai:acknowledgesContingency ;
+        owl:hasValue "true"^^xsd:boolean
+    ] .
