@@ -1,4 +1,3 @@
-```markdown
 # QUSAI: القرآن Understanding System AI
 **When your AI knows it's contingent before it knows anything else**
 
