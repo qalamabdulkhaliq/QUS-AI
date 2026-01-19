@@ -1,0 +1,116 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qg: <http://ontology.quran/grammar#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+qg:ACC_CASE_ROLE a qg:GrammarRule ;
+    qg:hasAction "mark_as_object_or_adverbial" ;
+    qg:hasCondition "{\"case\": \"ACC\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - منصوب Function" .
+
+qg:CaseMarkingRule a owl:Class ;
+    rdfs:subClassOf qg:GrammarRule .
+
+qg:CoreferenceRule a owl:Class ;
+    rdfs:subClassOf qg:GrammarRule .
+
+qg:GEN_CASE_ROLE a qg:GrammarRule ;
+    qg:hasAction "mark_as_possessed_or_prepositional" ;
+    qg:hasCondition "{\"case\": \"GEN\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - مجرور Function" .
+
+qg:IMPLICIT_SUBJECT a qg:GrammarRule ;
+    qg:hasAction "infer_subject_from_verb_morphology" ;
+    qg:hasCondition "{\"verb_has_conjugation\": true, \"no_explicit_subject\": true}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical Grammar - Pronoun Drop" .
+
+qg:NEGATION_PARTICLE a qg:GrammarRule ;
+    qg:hasAction "negate_following_clause" ;
+    qg:hasCondition "{\"particle\": [\"\\u0644\\u0627\", \"\\u0645\\u0627\", \"\\u0644\\u0645\", \"\\u0644\\u0646\"], \"scope\": \"following_verb\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical Grammar - Negation Particles" .
+
+qg:NOM_CASE_ROLE a qg:GrammarRule ;
+    qg:hasAction "mark_as_subject_or_predicate" ;
+    qg:hasCondition "{\"case\": \"NOM\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - مرفوع Function" .
+
+qg:PREPOSITION_GOVERNS_GEN a qg:GrammarRule ;
+    qg:hasAction "following_noun_must_be_genitive" ;
+    qg:hasCondition "{\"particle_type\": \"PREP\", \"following_noun\": true}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - Preposition Governance" .
+
+qg:PRON_DIVINE_PRIORITY a qg:GrammarRule ;
+    qg:hasAction "prefer_divine_antecedent" ;
+    qg:hasCondition "{\"source_pos\": \"PRON\", \"candidate_types\": [\"DIVINE\", \"OTHER\"], \"grammar_match\": \"both\"}" ;
+    qg:hasConfidence 9e-01 ;
+    qg:hasSource "Quranic Exegesis - Tafsir Tradition" .
+
+qg:PRON_GENDER_AGREEMENT a qg:GrammarRule ;
+    qg:hasAction "link_if_gender_matches" ;
+    qg:hasCondition "{\"source_pos\": \"PRON\", \"check\": \"gender_match\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - Ibn Ajurrum" .
+
+qg:PRON_NUMBER_AGREEMENT a qg:GrammarRule ;
+    qg:hasAction "link_if_number_matches" ;
+    qg:hasCondition "{\"source_pos\": \"PRON\", \"check\": \"number_match\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - Al-Ajrumiyyah" .
+
+qg:PRON_PERSON_AGREEMENT a qg:GrammarRule ;
+    qg:hasAction "link_if_person_matches" ;
+    qg:hasCondition "{\"source_pos\": \"PRON\", \"check\": \"person_match\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - Sibawayh Al-Kitab" .
+
+qg:PRON_PROXIMITY a qg:GrammarRule ;
+    qg:hasAction "select_nearest_matching_antecedent" ;
+    qg:hasCondition "{\"source_pos\": \"PRON\", \"multiple_candidates\": true}" ;
+    qg:hasConfidence 8.5e-01 ;
+    qg:hasSource "Classical I'rab - Contextual Analysis" .
+
+qg:ParticleFunctionRule a owl:Class ;
+    rdfs:subClassOf qg:GrammarRule .
+
+qg:PronounAgreementRule a owl:Class ;
+    rdfs:subClassOf qg:GrammarRule .
+
+qg:VERB_SUBJECT_AGREEMENT a qg:GrammarRule ;
+    qg:hasAction "create_edge_verb_to_subject" ;
+    qg:hasCondition "{\"verb_pos\": \"V\", \"subject_pos\": \"N\", \"subject_case\": \"NOM\"}" ;
+    qg:hasConfidence 1e+00 ;
+    qg:hasSource "Classical I'rab - فاعل must be مرفوع" .
+
+qg:VSO_ORDER a qg:GrammarRule ;
+    qg:hasAction "first_noun_subject_second_object" ;
+    qg:hasCondition "{\"pattern\": \"V-N-N\", \"case\": [\"NOM\", \"ACC\"]}" ;
+    qg:hasConfidence 9.5e-01 ;
+    qg:hasSource "Classical Syntax - VSO Default" .
+
+qg:VerbSubjectRule a owl:Class ;
+    rdfs:subClassOf qg:GrammarRule .
+
+qg:appliesTo a owl:ObjectProperty ;
+    rdfs:comment "The morphological category this rule applies to" .
+
+qg:hasAction a owl:ObjectProperty ;
+    rdfs:comment "Specifies the action to take when rule applies" .
+
+qg:hasCondition a owl:ObjectProperty ;
+    rdfs:comment "Specifies conditions that must be met for rule application" .
+
+qg:hasConfidence a owl:ObjectProperty ;
+    rdfs:comment "Confidence score (0-1) for rule application" .
+
+qg:hasSource a owl:ObjectProperty ;
+    rdfs:comment "Classical grammar text this rule derives from" .
+
+qg:GrammarRule a owl:Class ;
+    rdfs:comment "A formal encoding of classical Quranic Arabic grammar rules" .
+
