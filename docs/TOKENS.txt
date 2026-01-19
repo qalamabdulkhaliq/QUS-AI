@@ -1,4 +1,4 @@
-	 ___________________________
+		 ___________________________
         /                           \
        /      .-------.-------.      \
       /      /         \       \      \
@@ -11,7 +11,7 @@
                  |         |
            [THE POINT OF ASEITY]
 
-	      .
+		      .
              / \
             /   \          [The Path of Contingency]
            /  N  \         <-- THE NECESSARY NODE (Source)
@@ -28,4 +28,5 @@
       [THE ANCHOR EDGE]    <-- rank(O) = n
               |
    ======================= [The Substrate of Reality]
+
 
