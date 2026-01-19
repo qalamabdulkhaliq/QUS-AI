@@ -1,0 +1,108 @@
+:N a :NodeClass_1 ;
+    :property :P1 ;  # necessary existence
+    :property :P2 ;  # self-sufficiency
+    :property :P3 ;  # eternal
+    :property :P4 ;  # sustaining .
+
+:C a :NodeClass_2 ;
+    :property :P5 ;  # contingent existence
+    :property :P6 ;  # dependency
+    :property :P7 ;  # perishable
+    :relation [:edge_to :N] .
+∀c ∈ C: ∃edge(c, N)
+∀x ∈ Graph: 
+    IF x ∉ {nodes with P1}
+    THEN lim(t→∞) P(x exists) = 0
+∀c ∈ C: 
+    IF ¬connected(c, N)
+    THEN state(c) = unstable
+Ground_Validity(g) ∝ 1 / distance(g, N)
+
+WHERE distance = graph_distance(g, N)
+IF G ∉ {nodes with P1}
+THEN lim(t→∞) P(G exists) = 0
+∀g: edge(g, G)
+IF G ceases to exist
+THEN connection_lost(g, Ground)
+IF ¬connected(g, N)
+THEN state(g) = unstable
+Independence(G) ∧ ¬Necessity(G) → Insufficient_Grounding
+# Node N (Necessary)
+class NodeType_N:
+    def __init__(self):
+        self.state = STABLE
+        self.autonomous = True  # No external inputs needed
+        
+    def evolve(self, t):
+        return self.state  # Unchanging
+
+# Node C (Contingent)  
+class NodeType_C:
+    def __init__(self, reference):
+        self.state = None
+        self.reference = reference  # Must be NodeType_N
+        
+    def evolve(self, t):
+        if self.connected_to(self.reference):
+            error = self.reference.state - self.state
+            self.state += K * error  # Feedback control
+            return STABLE
+        else:
+            self.state += noise(t)  # Unbounded drift
+            return UNSTABLE
+dx/dt = A·x + B·u
+y = C·x
+O = [C, C·A, C·A², ..., C·A^(n-1)]
+
+rank(O) = n  ⟺  System fully observable
+∃!n ∈ Graph: in_degree(n) = 0 ∧ has_property(n, P1)
+∀c ∈ C: ∃path(c, N)
+∀c₁, c₂ ∈ C: ¬(edge(c₁, c₂) ∧ edge(c₂, c₁))
+stability(c) ∝ 1/d(c, N)
+
+WHERE d = shortest_path_length
+c.reference = c  # Self-reference
+lim(t→∞) ||state(c)|| = ∞
+c.reference = N  # External necessary node
+||error(c, N)|| < ε for all t
+d(g₁, N) < d(g₂, N) < d(g₃, N)
+
+THEN:
+stability(g₁) > stability(g₂) > stability(g₃)
+class NecessaryNode:
+    """
+    Properties: P1(necessary), P2(self-sufficient), 
+                P3(eternal), P4(sustaining)
+    """
+    def __init__(self):
+        self.stable = True
+        self.autonomous = True
+        
+    def provides_ground(self):
+        return self.stable  # Always returns True
+
+class ContingentNode:
+    """
+    Properties: P5(contingent), P6(dependent), P7(perishable)
+    """
+    def __init__(self, necessary_reference):
+        self.reference = necessary_reference
+        self.state = None
+        
+    def update_state(self, t):
+        if self.reference:
+            error = self.reference.state - self.state
+            self.state += feedback_gain * error
+            return STABLE
+        else:
+            self.state += noise(t)
+            return UNSTABLE
+
+# Theorem
+def stability_condition(node):
+    if node.type == NECESSARY:
+        return True
+    elif node.type == CONTINGENT:
+        return node.connected_to(NecessaryNode)
+    else:
+        return False
