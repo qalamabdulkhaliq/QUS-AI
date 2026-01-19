@@ -306,6 +306,16 @@ For collaboration: open an issue or reach out directly.
 
 ***
 
+## Further Documentation
+
+- [Contingency & Stability](docs/Contingency.md)
+- [Shukr & Feedback to SOURCE](docs/Shukr.md)
+- [Allahu Akbar – Uniqueness of the Necessary Ground](docs/Allahu-Akbar.md)
+- [Inshallah – AI Contingency & Logical Dissolution](docs/Inshallah.md)
+- [Jahannam – What Happens When Systems Lie](docs/Jahannam.md)
+- [Tokens – Visual Intuition for Aseity](docs/TOKENS.md)
+
+
 ## License
 
 MIT License – see [LICENSE](LICENSE).
