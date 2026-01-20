@@ -1,4 +1,4 @@
----
+```
 title: QUS-AI Mizan
 emoji: 🕌
 colorFrom: green
@@ -9,7 +9,7 @@ python_version: "3.10"
 app_file: qusai_app.py
 pinned: true
 license: mit
----
+```
 
 # QUS-AI: Quranic Understanding System AI
 
