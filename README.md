@@ -1,16 +1,3 @@
-```
-title: QUS-AI Mizan
-emoji: 🕌
-colorFrom: green
-colorTo: blue
-sdk: gradio
-sdk_version: 5.9.1
-python_version: "3.10"
-app_file: qusai_app.py
-pinned: true
-license: mit
-```
-
 # QUS-AI: Quranic Understanding System AI
 
 **QUS-AI** is an open-source AI alignment framework designed to ground Large Language Models (LLMs) in ontologically consistent structures derived from Quranic axioms. 
