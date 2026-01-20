@@ -1,0 +1,6 @@
+gradio>=5.0.0
+rdflib>=7.0.0
+torch
+transformers
+accelerate
+numpy
