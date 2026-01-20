@@ -1,10 +1,7 @@
 import os
 import logging
-from typing import Tuple, Optional
 from abc import ABC, abstractmethod
-
-# Set verbosity before imports
-os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
+from huggingface_hub import hf_hub_download
 
 logger = logging.getLogger(__name__)
 
@@ -12,74 +9,60 @@ class ModelInterface(ABC):
     @abstractmethod
     def generate(self, prompt: str, max_new_tokens: int = 100) -> str:
         pass
-
+    
     @abstractmethod
     def load(self):
         pass
 
-class HuggingFaceModel(ModelInterface):
-    def __init__(self, model_id: str):
-        self.model_id = model_id
-        self.tokenizer = None
-        self.model = None
+class GGUFModel(ModelInterface):
+    """
+    Optimized CPU Loader using Llama.cpp (GGUF format).
+    Perfect for running 7B/8B models on Free Tier HF Spaces (16GB RAM).
+    """
+    def __init__(self, repo_id: str, filename: str):
+        self.repo_id = repo_id
+        self.filename = filename
+        self.llm = None
         self.is_ready = False
-        
+
     def load(self):
         try:
-            import torch
-            from transformers import AutoTokenizer, AutoModelForCausalLM
-        except ImportError:
-            logger.warning("Torch/Transformers not installed. Running in Ontology-Only mode.")
-            return
-
-        token = os.environ.get("HF_TOKEN")
-        logger.info(f"Loading model {self.model_id}...")
-        
-        try:
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_id, 
-                token=token, 
-                trust_remote_code=True
+            from llama_cpp import Llama
+            logger.info(f"Downloading {self.filename} from {self.repo_id}...")
+            
+            model_path = hf_hub_download(
+                repo_id=self.repo_id, 
+                filename=self.filename
             )
-            # CPU-friendly loading by default as per project preference
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_id,
-                token=token,
-                torch_dtype="auto",
-                device_map="cpu",
-                trust_remote_code=True,
-                low_cpu_mem_usage=True
+            
+            logger.info(f"Loading GGUF model into RAM...")
+            # n_ctx=4096 is a safe context window for CPU
+            # n_threads=2 matches the free tier 2 vCPU limit
+            self.llm = Llama(
+                model_path=model_path,
+                n_ctx=4096,
+                n_threads=2, 
+                verbose=False
             )
-            self.model.eval()
             self.is_ready = True
-            logger.info(f"Model {self.model_id} loaded successfully.")
+            logger.info("✓ Model Loaded Successfully (GGUF/CPU Optimized)")
+            
         except Exception as e:
-            logger.error(f"Failed to load model: {e}")
+            logger.error(f"Failed to load GGUF model: {e}")
 
-    def generate(self, prompt: str, max_new_tokens: int = 200) -> str:
+    def generate(self, prompt: str, max_new_tokens: int = 256) -> str:
         if not self.is_ready:
-            return "[Model not loaded - Ontology Only]"
-
-        import torch
+            return "[Model Not Loaded]"
+            
         try:
-            inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048)
-            with torch.no_grad():
-                outputs = self.model.generate(
-                    **inputs,
-                    max_new_tokens=max_new_tokens,
-                    do_sample=True,
-                    temperature=0.7,
-                    top_p=0.9
-                )
-            response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            # Clean up prompt echo if present
-            if prompt in response:
-                response = response.replace(prompt, "", 1).strip()
-            # Or strict "Answer:" splitting if prompt format dictates
-            if "Answer:" in response:
-                response = response.split("Answer:")[-1].strip()
-                
-            return response
+            output = self.llm(
+                prompt, 
+                max_tokens=max_new_tokens, 
+                stop=["Question:", "User:", "System:"], 
+                echo=False,
+                temperature=0.7
+            )
+            return output['choices'][0]['text'].strip()
         except Exception as e:
-            logger.error(f"Generation failed: {e}")
-            return f"Error during generation: {e}"
+            logger.error(f"Generation Error: {e}")
+            return f"Error: {e}"

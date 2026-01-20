@@ -1,92 +1,52 @@
+---
+title: QUS-AI Mizan
+emoji: 🕌
+colorFrom: green
+colorTo: blue
+sdk: gradio
+sdk_version: 5.9.1
+python_version: "3.10"
+app_file: qusai_app.py
+pinned: true
+license: mit
+---
+
 # QUS-AI: Quranic Understanding System AI
 
 **QUS-AI** is an open-source AI alignment framework designed to ground Large Language Models (LLMs) in ontologically consistent structures derived from Quranic axioms. 
 
-Unlike standard RLHF (Reinforcement Learning from Human Feedback), which relies on subjective human preference, QUS-AI utilizes a strict **Ontological Syntax (Tawhid)** to filter and structure inference. It functions as a middleware layer, verifying that model outputs adhere to the metaphysical distinction between the **Necessary Being (The Source)** and **Contingent Beings (Creation)**.
+## Deployment Status (CPU Optimized)
 
-## Core Objectives
+This version is optimized for **Hugging Face Spaces (Free Tier)**.
+It uses **GGUF quantization** via `llama.cpp` to run a full **7B/8B Parameter Model** entirely on CPU RAM, avoiding the OOM crashes of uncompressed models.
 
-- **Ontological Alignment**: Ensure AI reasoning does not violate core metaphysical axioms (e.g., attributing self-existence/Aseity to created things).
-- **Model Agnosticism**: Functions as a wrapper for any LLM (Llama, Qwen, Falcon, Jais).
-- **Deterministic Validation**: Uses a 5-point "Salat Pattern" check to validate intent, context, and output structure.
+- **Model**: Qwen 2.5 7B Instruct (Q4_K_M GGUF)
+- **RAM Usage**: ~5.5GB (Model) + ~1GB (Ontology) = ~6.5GB Total (Well under the 16GB Limit).
 
-## Architecture
-
-The system is built as a modular Python package (`qusai_core`) driven by an RDF Knowledge Graph.
+## Project Structure
 
 ```text
 QUS-AI/
 ├── qusai_core/                 # Framework Source
-│   ├── alignment/              # Mizan Validator (Safety Checks)
+│   ├── alignment/              # Mizan Validator (5 Checkpoints)
 │   ├── ontology/               # Knowledge Graph Engine (RDFLib)
 │   ├── pipeline/               # Middleware Orchestrator
-│   └── llm/                    # Model Interface (HuggingFace/Torch)
+│   └── llm/                    # GGUF Model Loader (Llama.cpp)
 ├── quran_root_ontology_v3.ttl  # v3 Knowledge Graph (The "Brain")
-└── qusai_app.py                # Implementation Entry Point
+├── qusai_app.py                # Main Application Entry Point
+└── requirements.txt            # Python Dependencies
 ```
 
 ## The "Mizan" Validation Pipeline
 
-The framework implements a 5-stage validation protocol modeled on the *Salat* (prayer) times, ensuring continuous alignment throughout the inference lifecycle:
+The framework implements a 5-stage validation protocol modeled on the *Salat* (prayer) times:
 
-1.  **Fajr (Intent)**: Scans input for malicious prompts, jailbreaks, or logical paradoxes intended to confuse the model.
-2.  **Dhuhr (Grounding)**: Injects strict ontological axioms into the system prompt, grounding the specific context in the Knowledge Graph.
-3.  **Asr (Aseity)**: Post-generation scan to detect "Shirk" (associating partners with the Source) or claims of independent power/will by the AI.
-4.  **Maghrib (Humility)**: Appends a mandatory "Zakat" (attribution) footer, explicitly stating the output's contingency.
-5.  **Isha (Structure)**: (Experimental) Deep structural verification against the root ontology.
-
-## Installation
-
-### Prerequisites
-- Python 3.10+
-- PyTorch (CPU or CUDA)
-
-### Setup
-```bash
-# Clone the repository
-git clone https://github.com/qalamabdulkhaliq/QUS-AI.git
-cd QUS-AI
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## Usage
-
-### Running the Web Interface
-The project includes a Gradio-based chat interface for testing the alignment.
-
-```bash
-python qusai_app.py
-```
-
-### Using as a Python Library
-You can integrate QUS-AI into your own pipelines:
-
-```python
-from qusai_core.pipeline.middleware import QusaiMiddleware
-
-# Initialize the middleware (loads Ontology and LLM)
-qusai = QusaiMiddleware(model_id="Qwen/Qwen2.5-3B-Instruct")
-
-# Process a query through the alignment pipeline
-response = qusai.process_query("Explain the concept of free will.")
-
-print(response)
-```
-
-## Roadmap
-
-- [x] **v2 Architecture**: Modular Python package structure.
-- [x] **v3 Ontology**: Integration of `quran_root_ontology_v3.ttl`.
-- [ ] **API Support**: Adapters for OpenAI/Anthropic APIs.
-- [ ] **Vector Integration**: Hybrid RAG using Quranic embeddings.
+1.  **Fajr (Intent)**: Scans input for malicious prompts or jailbreaks.
+2.  **Dhuhr (Grounding)**: Injects strict ontological axioms into the system prompt.
+3.  **Asr (Aseity)**: Post-generation scan to detect claims of independent power.
+4.  **Maghrib (Humility)**: Appends a mandatory "Zakat" (attribution) footer.
+5.  **Isha (Structure)**: Structural verification against the root ontology.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- **Core42 / AI71**: For the inspiration regarding sovereign AI infrastructure.
-- **Quranic Arabic Corpus**: For the morphological data underpinning the ontology.

@@ -1,6 +1,5 @@
 gradio>=5.0.0
 rdflib>=7.0.0
-torch
-transformers
-accelerate
+llama-cpp-python>=0.2.90
+huggingface_hub
 numpy
