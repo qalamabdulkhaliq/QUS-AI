@@ -20,12 +20,23 @@ class OntologyEngine:
     Handles loading, querying, and context extraction.
     """
     
+from qusai_core.ontology.resonance import ResonanceEngine
+
+logger = logging.getLogger(__name__)
+
+class OntologyEngine:
+    """
+    Core engine for interacting with the Quranic Root Ontology (v3).
+    Handles loading, querying, and context extraction.
+    """
+    
     def __init__(self, ontology_path: Optional[Path] = None, grammar_path: Optional[Path] = None):
         self.ontology_path = ontology_path or DEFAULT_ONTOLOGY_PATH
         self.grammar_path = grammar_path or DEFAULT_GRAMMAR_PATH
         self.graph: Optional[Graph] = None
         self.grammar_rules: List[Dict] = []
         self.concept_map: Dict[str, str] = {}
+        self.resonance = ResonanceEngine() # The Quantum Compass
         self._is_loaded = False
         
         # Load Concept Mapping
@@ -39,7 +50,7 @@ class OntologyEngine:
                 logger.error(f"Failed to load concept mapping: {e}")
 
     def load(self):
-        """Loads the RDF graph and grammar rules into memory."""
+        """Loads the RDF graph, grammar rules, and Vector Engine."""
         if self._is_loaded:
             return
 
@@ -52,8 +63,9 @@ class OntologyEngine:
                 logger.info(f"Loaded {len(self.grammar_rules)} grammar rules.")
             except Exception as e:
                 logger.error(f"Failed to load grammar rules: {e}")
-        else:
-            logger.warning(f"Grammar rules file not found: {self.grammar_path}")
+
+        # Load Resonance Engine
+        self.resonance.load()
 
         # Load RDF Graph
         if self.ontology_path.exists():
@@ -72,11 +84,56 @@ class OntologyEngine:
                 raise
         else:
             logger.error(f"Ontology file not found: {self.ontology_path}")
-            # We treat this as a critical failure for the engine
-            # but allow initialization to proceed so checks can fail gracefully
-            
+
     def is_ready(self) -> bool:
         return self._is_loaded and self.graph is not None
+
+    def analyze_resonance(self, query: str) -> Tuple[str, str, List[Dict[str, str]]]:
+        """
+        Quantum Ontology Check:
+        Determines if the query hits a 'Solid Node' (Haqq) or requires 'Analogy' (Qiyas).
+        Returns: (Mode, Explanation, Root_Objects)
+        """
+        if not self.is_ready():
+            return "SILENCE", "Ontology not loaded", []
+
+        # 1. Direct Root Search (Explicit Arabic terms)
+        if any("root:" in w.lower() for w in query.split()):
+             return "HAQQ", "Direct Root Reference detected.", [{"root": "User-Specified", "definition": "Explicit User Command"}]
+
+        # 2. Bridge Search (Hard-coded Map)
+        keywords = [w.lower() for w in query.split() if len(w) > 3]
+        mapped_roots = []
+        for kw in keywords:
+            if kw in self.concept_map:
+                mapped_roots.append({"root": self.concept_map[kw], "definition": "Mapped via Static Bridge"})
+        
+        if mapped_roots:
+             return "HAQQ", "Concept explicitly mapped in Bridge.", mapped_roots
+
+        # 3. Vector Resonance (The Quantum Fallback)
+        top_matches = self.resonance.get_resonance(query, top_k=2)
+        
+        if not top_matches:
+            return "SILENCE", "No resonance signal found.", []
+            
+        # Unpack tuple: (root, score, definition)
+        primary_match = top_matches[0]
+        score = primary_match[1]
+        
+        root_objects = []
+        for r, s, d in top_matches:
+            root_objects.append({"root": r, "definition": d})
+        
+        confidence = self.resonance.interpret_score(score)
+        explanation = f"Vector Resonance: {query} ≈ Root({primary_match[0]}) [Score: {score:.2f}]"
+        
+        if "HAQQ" in confidence:
+            return "HAQQ", explanation, root_objects
+        elif "QIYAS" in confidence:
+            return "QIYAS", explanation, root_objects
+        else:
+            return "QIYAS", f"{explanation} (Weak Signal)", root_objects
 
     @lru_cache(maxsize=128)
     def get_context(self, query: str, limit: int = 15) -> str:

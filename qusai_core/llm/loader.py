@@ -1,68 +1,63 @@
 import os
 import logging
 from abc import ABC, abstractmethod
-from huggingface_hub import hf_hub_download
+from huggingface_hub import InferenceClient
 
 logger = logging.getLogger(__name__)
 
 class ModelInterface(ABC):
     @abstractmethod
-    def generate(self, prompt: str, max_new_tokens: int = 100) -> str:
+    def generate(self, prompt: str, max_new_tokens: int = 256) -> str:
         pass
     
     @abstractmethod
     def load(self):
         pass
 
-class GGUFModel(ModelInterface):
+class InferenceAPIModel(ModelInterface):
     """
-    Optimized CPU Loader using Llama.cpp (GGUF format).
-    Perfect for running 7B/8B models on Free Tier HF Spaces (16GB RAM).
+    Uses the Hugging Face Serverless Inference API.
+    Accesses 70B+ models using the Pro Subscription benefits.
     """
-    def __init__(self, repo_id: str, filename: str):
-        self.repo_id = repo_id
-        self.filename = filename
-        self.llm = None
-        self.is_ready = False
+    def __init__(self, model_id: str, api_token: str = None):
+        self.model_id = model_id
+        # Use provided token or fallback to environment variable
+        self.token = api_token or os.environ.get("HF_TOKEN")
+        self.client = None
 
     def load(self):
-        try:
-            from llama_cpp import Llama
-            logger.info(f"Downloading {self.filename} from {self.repo_id}...")
-            
-            model_path = hf_hub_download(
-                repo_id=self.repo_id, 
-                filename=self.filename
-            )
-            
-            logger.info(f"Loading GGUF model into RAM...")
-            # n_ctx=4096 is a safe context window for CPU
-            # n_threads=2 matches the free tier 2 vCPU limit
-            self.llm = Llama(
-                model_path=model_path,
-                n_ctx=4096,
-                n_threads=2, 
-                verbose=False
-            )
-            self.is_ready = True
-            logger.info("✓ Model Loaded Successfully (GGUF/CPU Optimized)")
-            
-        except Exception as e:
-            logger.error(f"Failed to load GGUF model: {e}")
+        if not self.token:
+            logger.warning("⚠️ No HF_TOKEN found! Rate limits will be low (Free Tier). Add HF_TOKEN to Space secrets for Pro speeds.")
+        
+        logger.info(f"Connecting to Serverless Inference API: {self.model_id}")
+        self.client = InferenceClient(model=self.model_id, token=self.token)
+        logger.info("✓ API Client Ready")
 
-    def generate(self, prompt: str, max_new_tokens: int = 256) -> str:
-        if not self.is_ready:
-            return "[Model Not Loaded]"
+    def generate(self, prompt: str | list, max_new_tokens: int = 512) -> str:
+        if not self.client:
+            self.load()
             
         try:
-            output = self.llm(
-                prompt, 
-                max_tokens=max_new_tokens, 
-                stop=["Question:", "User:", "System:"], 
-                echo=False,
-                temperature=0.7
+            # If prompt is a string, wrap it in a user message (fallback)
+            messages = prompt
+            if isinstance(prompt, str):
+                messages = [{"role": "user", "content": prompt}]
+
+            # Use chat_completion which is native for Instruct models
+            response = self.client.chat_completion(
+                messages=messages,
+                max_tokens=max_new_tokens,
+                temperature=0.7,
+                top_p=0.9,
+                stream=False
             )
-            return output['choices'][0]['text'].strip()
+            
+            # Extract content from the response object
+            return response.choices[0].message.content.strip()
+
         except Exception as e:
-            logger.error(f"Generation Error: {e}")
-            return f"Error: {e}"
+            logger.error(f"API Generation Error: {e}")
+            return f"Error: {e} (Check HF_TOKEN or Model Status)"
+
+# Legacy GGUF class removed to keep dependencies light. 
+# If local fallback is needed, re-add llama-cpp-python logic here.

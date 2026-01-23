@@ -1,5 +1,6 @@
 gradio>=5.0.0
 rdflib>=7.0.0
-llama-cpp-python>=0.2.90
-huggingface_hub
+huggingface_hub>=0.23.0
 numpy
+requests
+sentence-transformers>=3.0.0
